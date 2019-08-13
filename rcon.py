@@ -13,7 +13,10 @@ class Controls():
 		self.message = None
 	
 	async def send(self):
-		self.message = await self.ctx.send(self.content)
+		if isinstance(self.content, discord.Embed):
+			self.message = await self.ctx.send(embed=self.content)
+		else:
+			self.message = await self.ctx.send(self.content)
 		
 		if self.timeout_func == None:
 			self.timeout_func = await self.message.delete()
@@ -27,7 +30,7 @@ class Controls():
 	async def main_loop(self):
 		while True:
 			def check(reaction, user):
-				return str(reaction.emoji) in self.reactions and user.id == self.ctx.author.id
+				return str(reaction.emoji) in self.reactions and user.id == self.ctx.author.id and reaction.message.id == self.message.id
 
 			try:
 				reaction = await self.ctx.bot.wait_for("reaction_add", check=check, timeout=self.timeout)
